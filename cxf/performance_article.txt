@@ -1,0 +1,84 @@
+h1. CXF Performance Measurements
+
+From time to time people ask how fast is CXF? Of course this is a difficult question as the measuered speed depends very much in the Hardware of the test setup and on the whole definition of the test.
+So I am trying to explain how you can do your own tests and what to do to make sure you get clean results.
+
+What should you keep in mind when doing performance tests with Java
+
+* Thread count is a typical number you should experiment with
+* As long as you have not maxed out a resource you can improve the results. Typical resources to check are processor load, memory and network
+* Increase the thread count until you max out a resource. But do not go much higher
+* Always use a warmup phase (~1-2 minutes). Java needs to load classes the first time. On the Sun VM additionally the Hotspot compiler will kick in after some time
+
+h2. Prerequisites
+
+The test project can be found on my github account. You can either download a zip or clone the project with git:
+[https://github.com/cschneider/performance-tests}
+
+As a load generator and measurement tool we use soapUI. Download the free version from the link below:
+[http://www.soapui.org/]
+
+h2. Our test plan
+
+We test SOAP/HTTP and SOAP/JMS performance using a small but non trivial service. For this case the CustomerService from the wsdl_first example will be used.
+
+h2. Customerservice SOAP/HTTP performance
+
+For the server side I have prepared a maven project which start the CustomerService  implementation from the wsdl_first example on an embedded jetty. We could 
+also use an external server but in my tests the results were similar and the embedded version can be started very easily.
+
+The number of listener threads can be adjusted in the file src/main/resources/server-applicationContext.xml :
+
+{code}
+<httpj:threadingParameters minThreads="5" maxThreads="5" />
+{code}
+
+Start the server:
+
+cd cxf
+mvn -Pserver
+
+Start soapUI and load the soapUI project from the file cxf/cxf-performance-soapui-project.xml. The project was built using the wsdl of the CustomerService and contains
+test requests and a load test definition.
+
+Now navigate to the Loadtest 1 like shown in screenshot and start the loadtest by clicking on the green arrow. The intersting result is tps (Transactions per seconds). It measures how many Requests/Resonses are processed per second.
+At first the number will be quite low but increase steadily. That is because of class loading and optimizations in Java. Let the test run 60 seconds. This was the warmup phase. Now start the test again.
+
+h2. Customerservice SOAP/JMS performance
+
+
+
+h2. Environment
+
+It is always important to describe excatly on which configuration the test was run.
+All the tests below were run on a Intel Core i5 / 8GB System. Client and Server where on the same machine.
+
+h2. SOAP/HTTP Results 
+
+Threads are listener and client threads. CPU load is read from the windows Task Manager. Transactions per Second are the highest number from soapUI.
+
+The payload size can be adjusted by the number of customer records the server sends:
+
+|| Customers || payload size ||
+| 0 | 190 |
+| 2 | 662 |
+| 200 | 44222 | 44 KB |
+| 20000 | 4400222 | 4,4 MB |
+| 200000 | 44000222 | 44 MB |
+
+|| Threads || Payload size || CPU Load || Transations per Second ||
+| 10 | 190 | 100% | 3770 |
+| 5 | 662 | 57% | 2480 |
+| 10 | 662 | 100% | 3660 |
+| 20 | 662 | 100% | 3590 |
+| 10 | 44 KB | 100% | 804 |
+| 10 | 4,4 MB | 100% | 9 |
+| 4 |  44 MB | 100% | 0,6 |
+
+So it looks like 10 threads is ideal for the test machine with 2 cores and 4 virtual cores. This is quite near the rule of thumb to use double the amount of cores as optimal thread number.
+When scaling up the payload size performance drops with the same factor. In the last line the drop is a little higher as I was not able to use 10 threads as soapUI then exits with an out of memory error.
+
+When looking at the number with large payload it is important to know that we are sending very fine grained xml. When using mtom attachments for larger data performance is much better.
+
+h2. SOAP/JMS results
+
