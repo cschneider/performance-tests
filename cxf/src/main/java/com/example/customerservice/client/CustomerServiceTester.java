@@ -19,57 +19,105 @@
 
 package com.example.customerservice.client;
 
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Assert;
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.commons.lang.time.StopWatch;
+import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.example.customerservice.Customer;
 import com.example.customerservice.CustomerService;
-import com.example.customerservice.NoSuchCustomerException;
 
 public final class CustomerServiceTester {
-    
-    // The CustomerService proxy will be injected either by spring or by a direct call to the setter 
-    CustomerService customerService;
-    
-    public CustomerService getCustomerService() {
-        return customerService;
-    }
 
-    public void setCustomerService(CustomerService customerService) {
-        this.customerService = customerService;
-    }
+	// The CustomerService proxy will be injected either by spring or by a
+	// direct call to the setter
+	CustomerService customerService;
 
-    public void testCustomerService() throws NoSuchCustomerException {
-        List<Customer> customers = null;
-        
-        // First we test the positive case where customers are found and we retreive
-        // a list of customers
-        System.out.println("Sending request for customers named Smith");
-        customers = customerService.getCustomersByName("Smith");
-        System.out.println("Response received");
-        Assert.assertEquals(2, customers.size());
-        Assert.assertEquals("Smith", customers.get(0).getName());
-        
-        // Then we test for an unknown Customer name and expect the NoSuchCustomerException
-        try {
-            customers = customerService.getCustomersByName("None");
-            Assert.fail("We should get a NoSuchCustomerException here");
-        } catch (NoSuchCustomerException e) {
-            System.out.println(e.getMessage());
-            Assert.assertNotNull("FaultInfo must not be null", e.getFaultInfo());
-            Assert.assertEquals("None", e.getFaultInfo().getCustomerName());
-            System.out.println("NoSuchCustomer exception was received as expected");
-        }
-        
-        // The implementation of updateCustomer is set to sleep for some seconds. 
-        // Still this method should return instantly as the method is declared
-        // as a one way method in the WSDL
-        Customer customer = new Customer();
-        customer.setName("Smith");
-        customerService.updateCustomer(customer);
-        
-        System.out.println("All calls were successful");
-    }
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
+	}
+
+	public void testCustomerService() throws Exception {
+		//System.in.read();
+		int numMessages = 10000;
+		int numThreads = 50;
+		final Customer customer = new Customer();
+		customer.setName("Smith");
+
+		// Only for sending pure jms Messages without CXF
+		ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(
+				"tcp://localhost:61616");
+		CachingConnectionFactory ccf = new CachingConnectionFactory(cf);
+		ccf.setSessionCacheSize(numThreads);
+		Connection con = cf.createConnection();
+
+		doRun(customer, con, numMessages, numThreads);
+		StopWatch watch = new StopWatch();
+		watch.start();
+		doRun(customer, con, numMessages, numThreads);
+		watch.stop();
+		con.close();
+		System.out.println(numMessages * 1000 / watch.getTime());
+		System.out.println(watch.toString());
+		ccf.destroy();
+	}
+
+	private void doRun(final Customer customer, final Connection con, int numMessages, int numThreads) 
+		throws InterruptedException, Exception {
+		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+		final AtomicInteger count = new AtomicInteger();
+		
+		for (int c = 0; c < numMessages; c++) {
+			pool.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					int curCount = count.addAndGet(1);
+					if (curCount % 100 == 0) {
+						System.out.println(curCount);
+					}
+					//customerService.updateCustomer(customer);
+					sendMessage(con, count);
+
+				}
+
+				private void sendMessage(final Connection con,
+						final AtomicInteger count) {
+					try {
+
+						Session sess = con.createSession(false,
+								Session.AUTO_ACKNOWLEDGE);
+						
+						TextMessage me = sess.createTextMessage("Test");
+						Queue dest = sess.createQueue("example.B");
+						MessageProducer prod = sess.createProducer(dest);
+						prod.send(me);
+						prod.close();
+						sess.close();
+					} catch (JMSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+		pool.shutdown();
+		pool.awaitTermination(10000, TimeUnit.SECONDS);
+	}
 
 }

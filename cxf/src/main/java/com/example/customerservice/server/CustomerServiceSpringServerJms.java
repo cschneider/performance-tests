@@ -21,15 +21,14 @@ package com.example.customerservice.server;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class CustomerServiceSpringServer {
+public class CustomerServiceSpringServerJms {
+    
+    protected CustomerServiceSpringServerJms() {
+    }
 
-	protected CustomerServiceSpringServer() {
-	}
-
-	public static void main(String args[]) throws Exception {
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				"server-applicationContext.xml");
-		System.in.read();
-		context.close();
-	}
+    public static void main(String args[]) throws Exception {
+    	AbstractApplicationContext context = new ClassPathXmlApplicationContext("server-applicationContextJms.xml");
+        System.in.read();
+        context.close();
+    }
 }

@@ -16,20 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.example.customerservice.server;
+package com.example.customerservice.client;
 
-import org.springframework.context.support.AbstractApplicationContext;
+
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class CustomerServiceSpringServer {
+public final class CustomerServiceSpringClientJms {
 
-	protected CustomerServiceSpringServer() {
-	}
+    private CustomerServiceSpringClientJms() {
+    }
 
-	public static void main(String args[]) throws Exception {
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				"server-applicationContext.xml");
-		System.in.read();
-		context.close();
-	}
+    public static void main(String args[]) throws Exception {
+        // Initialize the spring context and fetch our test client
+        ClassPathXmlApplicationContext context 
+            = new ClassPathXmlApplicationContext(new String[] {"classpath:client-applicationContextJms.xml"});
+        CustomerServiceTester client = (CustomerServiceTester)context.getBean("tester");
+        
+        client.testCustomerService();
+        context.close();
+        System.exit(0);
+    }
 }

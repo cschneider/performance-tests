@@ -43,6 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
     WebServiceContext wsContext;
 
     public List<Customer> getCustomersByName(String name) throws NoSuchCustomerException {
+    	//System.out.println("Service called");
         if ("None".equals(name)) {
             NoSuchCustomer noSuchCustomer = new NoSuchCustomer();
             noSuchCustomer.setCustomerName(name);
@@ -68,13 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public void updateCustomer(Customer customer) {
-        System.out.println("update request was received");
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            // Nothing to do here
-        }
-        System.out.println("Customer was updated");
+        
     }
 
 }
