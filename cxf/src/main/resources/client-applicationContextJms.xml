@@ -24,22 +24,21 @@
 		http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
 		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
 ">
-
-	<bean id="jmsConnectionFactory"
-		class="org.springframework.jms.connection.CachingConnectionFactory">
-		<property name="targetConnectionFactory">
-			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
-				<property name="brokerURL" value="tcp://localhost:61616" />
-			</bean>
-		</property>
-		<property name="sessionCacheSize" value="30"/>
+	<bean id="jmsConnectionFactory2" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://localhost:61616" />
 	</bean>
+<!-- 	<bean id="jmsConnectionFactory" -->
+<!-- 		class="org.springframework.jms.connection.CachingConnectionFactory"> -->
+<!-- 		<property name="targetConnectionFactory" ref="jmsConnectionFactory2"/> -->
+<!-- 		<property name="sessionCacheSize" value="30"/> -->
+<!-- 	</bean> -->
 
 	<bean id="jmsConfig" class="org.apache.cxf.transport.jms.JMSConfiguration"
-		p:connectionFactory-ref="jmsConnectionFactory"
-		p:wrapInSingleConnectionFactory="false"
-		p:targetDestination="example.B"
-		p:concurrentConsumers="20" />
+		p:connectionFactory-ref="jmsConnectionFactory2"
+		p:wrapInSingleConnectionFactory="true"
+		p:useConduitIdSelector="false"
+		p:targetDestination="customerservice"
+		p:replyDestination="customerservicereply"/>
 
 	<!--
 		Define a cxf endpoint based on client stub generated from a wsdl. It

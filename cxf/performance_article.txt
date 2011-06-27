@@ -20,7 +20,20 @@ As a load generator and measurement tool we use soapUI. Download the free versio
 
 h2. Our test plan
 
-We test SOAP/HTTP and SOAP/JMS performance using a small but non trivial service. For this case the CustomerService from the wsdl_first example will be used.
+We test SOAP/HTTP, SOAP/HTTPS and SOAP/JMS performance using a small but non trivial service. For this case the CustomerService from the wsdl_first example will be used.
+Two variables will be changed for the test series. The Soap Message size and the number of sender/listener threads.
+The SOAP Message size will be tuned by using a String or variable length. It will be set so the complete SOAP message reaches the desired size. 
+
+The payload size can be adjusted by the number of customer records the server sends:
+
+|| Size || payload size ||
+| Small | 500 |
+| Medium | 10 KB |
+| Large | 1 MB|
+
+The second variable is the number of sender and listener Threads. We will test with 5, 10 and 20 Threads. The optimal number of threads
+correlates with the number of processor cores. In this case there are two cores. With bigger machines the maximum number of threads should be
+higher.
 
 h2. Customerservice SOAP/HTTP performance
 
@@ -46,6 +59,16 @@ At first the number will be quite low but increase steadily. That is because of 
 
 h2. Customerservice SOAP/JMS performance
 
+Testing JMS is much harder than HTTP. SOAP UI supports jms tests but it needs some more configuration than in the http case.
+
+Additionally there are many tuning possibilities that affect the speed tremendously. For example I was not abler to send more than
+700 messages per second in the start as my activemq config was not correctly optimized. When I used the throughput optimized config 
+the speed was much higher.
+
+Beware though when using the default "activemq-throughput.xml". It limits the size of queues to 1MB and stops the sender when the size is reached.
+In my case that meant that my sender was hanging mysteriously. After I set the limit to 100MB my tests worked. See activemq.xml for my configs. 
+
+On the ActiveMQ website much more performance tuning tips can be found:
 
 
 h2. Environment
@@ -57,28 +80,66 @@ h2. SOAP/HTTP Results
 
 Threads are listener and client threads. CPU load is read from the windows Task Manager. Transactions per Second are the highest number from soapUI.
 
-The payload size can be adjusted by the number of customer records the server sends:
 
-|| Customers || payload size ||
-| 0 | 190 |
-| 2 | 662 |
-| 200 | 44222 | 44 KB |
-| 20000 | 4400222 | 4,4 MB |
-| 200000 | 44000222 | 44 MB |
 
-|| Threads || Payload size || CPU Load || Transations per Second ||
-| 10 | 190 | 100% | 3770 |
-| 5 | 662 | 57% | 2480 |
-| 10 | 662 | 100% | 3660 |
-| 20 | 662 | 100% | 3590 |
-| 10 | 44 KB | 100% | 804 |
-| 10 | 4,4 MB | 100% | 9 |
-| 4 |  44 MB | 100% | 0,6 |
+|| Threads || Size || CPU Load || Transactions per Second ||
+|  5 | Small | 55% | 2580 |
+| 10 | Small | 100% | 3810 |
+| 20 | Small | 100% | 4072 |
+|  5 | Medium | 75% | 2360 |
+| 10 | Medium | 100% | 2840 |
+| 20 | Medium | 100% | 2820 |
+|  5 | Large | 90% | 94 |
+| 10 | Large | 92% | 94 |
+| 20 | Large | 95% | 84 |
 
 So it looks like 10 threads is ideal for the test machine with 2 cores and 4 virtual cores. This is quite near the rule of thumb to use double the amount of cores as optimal thread number.
-When scaling up the payload size performance drops with the same factor. In the last line the drop is a little higher as I was not able to use 10 threads as soapUI then exits with an out of memory error.
+When scaling up the payload size performance drops with the same factor.
 
-When looking at the number with large payload it is important to know that we are sending very fine grained xml. When using mtom attachments for larger data performance is much better.
+h2. SOAP/HTTPS results
+
+Cipher: AES-128 128 Bit key
+
+The payload size can be adjusted by the number of customer records the server sends:
+
+|| Threads || Size || CPU Load || Transactions per Second ||
+|  5 | Small | 60% | 2408 |
+| 10 | Small | 100% | 3310 |
+| 20 | Small | 100% | 3430 |
+|  5 | Medium | 80% | 1620 |
+| 10 | Medium | 100% | 1750 |
+| 20 | Medium | 100% | 1800 |
+|  5 | Large | 100% | 34 |
+| 10 | Large | 100% | 34 |
+| 20 | Large | 1000% | 34 |
+
+So it looks like 10 threads is ideal for the test machine with 2 cores and 4 virtual cores. This is quite near the rule of thumb to use double the amount of cores as optimal thread number.
+When scaling up the payload size performance drops with the same factor.
+
 
 h2. SOAP/JMS results
 
+Using request / reply with a fixed reply queue.
+
+|| Threads || Size || CPU Load || Transactions per Second ||
+|  5 | Small | 100% | 1670 |
+| 10 | Small | 100% | 1650 |
+| 20 | Small | 100% | 1710 |
+|  5 | Medium | 100% | 1120 |
+| 10 | Medium | 100% | 1120 |
+| 20 | Medium | 100% | 1140 |
+|  3 | Large | 75% | 30 |
+|  5 | Large | 75% | 28 |
+
+Using one way calls
+
+|| Threads || Size || CPU Load || Transactions per Second (only client) || Transactions per Second (client and server) || 
+|  5 | Small | 100% | 3930 | 3205 |
+| 10 | Small | 100% | 3900 | 3167 |
+| 20 | Small | 100% | 4200 | 3166 |
+| 30 | Small | 100% | 4090 | 2818 |
+
+When testing one way calls first only the client was running. So it can be expected that the performance is more than double the performance of 
+request /response as we do not have to send back a message and there is no server that consumes processor power. 
+
+Next the server was also running. This case is as expected about double the performance of request /reply as only half the messages have to be sent / received. 

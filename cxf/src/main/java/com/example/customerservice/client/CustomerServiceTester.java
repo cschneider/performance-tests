@@ -19,69 +19,46 @@
 
 package com.example.customerservice.client;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import javax.xml.ws.Response;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.time.StopWatch;
-import org.springframework.jms.connection.CachingConnectionFactory;
 
 import com.example.customerservice.Customer;
 import com.example.customerservice.CustomerService;
+import com.example.customerservice.GetCustomersByNameResponse;
 
 public final class CustomerServiceTester {
 
-	// The CustomerService proxy will be injected either by spring or by a
-	// direct call to the setter
 	CustomerService customerService;
-
-	public CustomerService getCustomerService() {
-		return customerService;
-	}
 
 	public void setCustomerService(CustomerService customerService) {
 		this.customerService = customerService;
 	}
 
 	public void testCustomerService() throws Exception {
-		//System.in.read();
-		int numMessages = 10000;
-		int numThreads = 50;
-		final Customer customer = new Customer();
-		customer.setName("Smith");
+		int numMessages = 20000;
+		int numThreads = 30;
 
-		// Only for sending pure jms Messages without CXF
-		ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(
-				"tcp://localhost:61616");
-		CachingConnectionFactory ccf = new CachingConnectionFactory(cf);
-		ccf.setSessionCacheSize(numThreads);
-		Connection con = cf.createConnection();
-
-		doRun(customer, con, numMessages, numThreads);
+		doRun(numMessages, numThreads);
 		StopWatch watch = new StopWatch();
 		watch.start();
-		doRun(customer, con, numMessages, numThreads);
+		doRun(numMessages, numThreads);
 		watch.stop();
-		con.close();
 		System.out.println(numMessages * 1000 / watch.getTime());
 		System.out.println(watch.toString());
-		ccf.destroy();
 	}
 
-	private void doRun(final Customer customer, final Connection con, int numMessages, int numThreads) 
-		throws InterruptedException, Exception {
+	private void doRun(int numMessages, int numThreads) throws InterruptedException, Exception {
 		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 		final AtomicInteger count = new AtomicInteger();
-		
+
+		final Customer customer = new Customer();
 		for (int c = 0; c < numMessages; c++) {
 			pool.execute(new Runnable() {
 
@@ -91,29 +68,26 @@ public final class CustomerServiceTester {
 					if (curCount % 100 == 0) {
 						System.out.println(curCount);
 					}
-					//customerService.updateCustomer(customer);
-					sendMessage(con, count);
+					
+					// At this point you can decide to test the one way or the request / response method
+					customerService.updateCustomer(customer);
+					//callGetCustomerByName();
 
 				}
 
-				private void sendMessage(final Connection con,
-						final AtomicInteger count) {
+				private void callGetCustomerByName() {
+					Response<GetCustomersByNameResponse> resp = customerService.getCustomersByNameAsync("test");
 					try {
-
-						Session sess = con.createSession(false,
-								Session.AUTO_ACKNOWLEDGE);
-						
-						TextMessage me = sess.createTextMessage("Test");
-						Queue dest = sess.createQueue("example.B");
-						MessageProducer prod = sess.createProducer(dest);
-						prod.send(me);
-						prod.close();
-						sess.close();
-					} catch (JMSException e) {
+						GetCustomersByNameResponse customers = resp.get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+
 			});
 		}
 		pool.shutdown();

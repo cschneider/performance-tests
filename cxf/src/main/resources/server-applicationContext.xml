@@ -27,23 +27,40 @@
 
   <import resource="META-INF/cxf/cxf.xml"/>
 
-  <httpj:engine-factory bus="cxf">
-    <httpj:engine port="9090">
-      <httpj:threadingParameters minThreads="10"
+  <engine-factory bus="cxf" xmlns="http://cxf.apache.org/transports/http-jetty/configuration">
+    <engine port="9090">
+      <threadingParameters minThreads="10"
                                  maxThreads="10" />
 
-      <httpj:sessionSupport>true</httpj:sessionSupport>
-    </httpj:engine>
-  </httpj:engine-factory>
+      <sessionSupport>true</sessionSupport>
+    </engine>
+    <engine port="9191">
+      <tlsServerParameters>
+      	<keyManagers xmlns="http://cxf.apache.org/configuration/security" keyPassword="password">
+      		<keyStore type="JKS" password="password" resource="certs/cherry.jks"/>
+      	</keyManagers>
+      </tlsServerParameters>
+      <threadingParameters minThreads="10" maxThreads="10" />
+      <sessionSupport>true</sessionSupport>
+    </engine>
+  </engine-factory>
 
 	<!-- HTTP Endpoint -->
-	<jaxws:endpoint xmlns:customer="http://customerservice.example.com/"
+	<jaxws:endpoint
 		id="CustomerServiceHTTP" address="http://localhost:9090/CustomerServicePort"
-		serviceName="customer:CustomerServiceService" endpointName="customer:CustomerServiceEndpoint"
 		implementor="com.example.customerservice.server.CustomerServiceImpl">
 <!-- 		<jaxws:features> -->
 <!-- 			<bean class="org.apache.cxf.feature.LoggingFeature" /> -->
 <!-- 		</jaxws:features> -->
 	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		id="CustomerServiceHTTPS" address="https://localhost:9191/CustomerServicePort"
+		implementor="com.example.customerservice.server.CustomerServiceImpl">
+<!-- 		<jaxws:features> -->
+<!-- 			<bean class="org.apache.cxf.feature.LoggingFeature" /> -->
+<!-- 		</jaxws:features> -->
+	</jaxws:endpoint>
+
 
 </beans>
