@@ -70,6 +70,7 @@ Beware though when using the default "activemq-throughput.xml". It limits the si
 In my case that meant that my sender was hanging mysteriously. After I set the limit to 100MB my tests worked. See activemq.xml for my configs. 
 
 On the ActiveMQ website much more performance tuning tips can be found:
+
 http://activemq.apache.org/performance-tuning.html
 
 h2. Environment
