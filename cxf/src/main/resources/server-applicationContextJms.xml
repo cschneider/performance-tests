@@ -28,11 +28,18 @@
 			value="tcp://localhost:61616?socketBufferSize=131072" />
 	</bean>
 	
+	<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+		<property name="connectionFactory" ref="jmsConnectionFactory2"/>
+		<property name="maxConnections" value="20"/>
+	</bean>
+	
+	<!-- 
 	<bean id="jmsConnectionFactory"
 		class="org.springframework.jms.connection.CachingConnectionFactory">
 		<property name="targetConnectionFactory" ref="jmsConnectionFactory2"/>
 		<property name="sessionCacheSize" value="5" />
 	</bean>
+	 -->
 
 	<bean id="jmsConfig" class="org.apache.cxf.transport.jms.JMSConfiguration"
 		p:connectionFactory-ref="jmsConnectionFactory"

@@ -42,8 +42,8 @@ public final class CustomerServiceTester {
 	}
 
 	public void testCustomerService() throws Exception {
-		int numMessages = 20000;
-		int numThreads = 30;
+		int numMessages = 40000;
+		int numThreads = 20;
 
 		doRun(numMessages, numThreads);
 		StopWatch watch = new StopWatch();
@@ -70,6 +70,7 @@ public final class CustomerServiceTester {
 					}
 					
 					// At this point you can decide to test the one way or the request / response method
+					
 					customerService.updateCustomer(customer);
 					//callGetCustomerByName();
 
@@ -80,11 +81,9 @@ public final class CustomerServiceTester {
 					try {
 						GetCustomersByNameResponse customers = resp.get();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					    throw new RuntimeException(e);
 					}
 				}
 

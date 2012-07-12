@@ -58,9 +58,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     public List<Customer> getCustomersByName(String name) throws NoSuchCustomerException {
     	int curCount = requestReplyCount.addAndGet(1);
-		if (curCount % 100 == 0) {
-			System.out.println("getCustomersByName " + curCount);
-		}
+        if (curCount % 100 == 0) {
+            long messagespersec = 100 * 1000 / (System.currentTimeMillis() - oldTimeOneWay);
+            oldTimeOneWay = System.currentTimeMillis();
+            System.out.println("updateCustomer " + curCount + " messages per sec: " + messagespersec);
+        }
     	//System.out.println("Service called");
         if ("None".equals(name)) {
             NoSuchCustomer noSuchCustomer = new NoSuchCustomer();
@@ -92,7 +94,6 @@ public class CustomerServiceImpl implements CustomerService {
 			long messagespersec = 100 * 1000 / (System.currentTimeMillis() - oldTimeOneWay);
 			oldTimeOneWay = System.currentTimeMillis();
 			System.out.println("updateCustomer " + curCount + " messages per sec: " + messagespersec);
-			
 		}
     }
 

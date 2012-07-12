@@ -29,9 +29,7 @@
 
   <engine-factory bus="cxf" xmlns="http://cxf.apache.org/transports/http-jetty/configuration">
     <engine port="9090">
-      <threadingParameters minThreads="10"
-                                 maxThreads="10" />
-
+      <threadingParameters minThreads="10" maxThreads="10" />
       <sessionSupport>true</sessionSupport>
     </engine>
     <engine port="9191">
@@ -54,13 +52,10 @@
 <!-- 		</jaxws:features> -->
 	</jaxws:endpoint>
 
-	<jaxws:endpoint
-		id="CustomerServiceHTTPS" address="https://localhost:9191/CustomerServicePort"
-		implementor="com.example.customerservice.server.CustomerServiceImpl">
-<!-- 		<jaxws:features> -->
-<!-- 			<bean class="org.apache.cxf.feature.LoggingFeature" /> -->
-<!-- 		</jaxws:features> -->
-	</jaxws:endpoint>
+<!-- 	<jaxws:endpoint -->
+<!-- 		id="CustomerServiceHTTPS" address="https://localhost:9191/CustomerServicePort" -->
+<!-- 		implementor="com.example.customerservice.server.CustomerServiceImpl">> -->
+<!-- 	</jaxws:endpoint> -->
 
 
 </beans>

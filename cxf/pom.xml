@@ -29,14 +29,12 @@
 	<name>Performance Tests CXF</name>
 
 	<properties>
-		<activemq.version>5.5.0</activemq.version>
-		<cxf.version>2.5.0-SNAPSHOT</cxf.version>
-		<camel.version>2.7.1</camel.version>
-		<spring.version>3.0.5.RELEASE</spring.version>
-		<jetty.version>7.2.2.v20101205</jetty.version>
-		<slf4j.version>1.6.1</slf4j.version>
+		<activemq.version>5.6.0</activemq.version>
+		<cxf.version>2.6.0</cxf.version>
+		<cxf.xjc-utils.version>2.6.0</cxf.xjc-utils.version>
+		<spring.version>3.0.7.RELEASE</spring.version>
+		<slf4j.version>1.6.2</slf4j.version>
 		<log4j.version>1.2.16</log4j.version>
-		<cglib.version>2.2</cglib.version>
 		<junit.version>4.8.2</junit.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -47,11 +45,11 @@
 			<artifactId>cxf-rt-transports-jms</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.cxf</groupId> -->
-<!-- 			<artifactId>cxf-rt-transports-http-jetty</artifactId> -->
-<!-- 			<version>${cxf.version}</version> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
@@ -59,10 +57,25 @@
 			<version>${activemq.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
+			<version>${activemq.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.cxf.xjc-utils</groupId>
+            <artifactId>cxf-xjc-runtime</artifactId>
+            <version>${cxf.xjc-utils.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -77,6 +90,11 @@
 		</dependency>
 
 		<!-- logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
