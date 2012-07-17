@@ -28,24 +28,26 @@
 		<property name="brokerURL" value="tcp://localhost:61616" />
 	</bean>
 	
-	<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+	<bean id="jmsConnectionFactory3" class="org.apache.activemq.pool.PooledConnectionFactory">
 		<property name="connectionFactory" ref="jmsConnectionFactory2"/>
-		<property name="maxConnections" value="20"/>
+		<property name="maxConnections" value="30"/>
 	</bean>
-<!-- 	<bean id="jmsConnectionFactory" -->
-<!-- 		class="org.springframework.jms.connection.CachingConnectionFactory"> -->
-<!-- 		<property name="targetConnectionFactory" ref="jmsConnectionFactory2"/> -->
-<!-- 		<property name="sessionCacheSize" value="30"/> -->
-<!-- 	</bean> -->
+	<bean id="jmsConnectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory" ref="jmsConnectionFactory3"/>
+		<property name="sessionCacheSize" value="30"/>
+	</bean>
 
 	<bean id="jmsConfig" class="org.apache.cxf.transport.jms.JMSConfiguration"
-		p:connectionFactory-ref="jmsConnectionFactory"
+		p:connectionFactory-ref="jmsConnectionFactory2"
 		p:wrapInSingleConnectionFactory="true"
-		p:useConduitIdSelector="true"
 		p:targetDestination="customerservice"
 		p:replyDestination="customerservicereply"
+		p:useConduitIdSelector="true"
+		
 		/>
-
+		<!-- p:replyDestination="customerservicereply"-->
+		<!--  p:useConduitIdSelector="true" -->
 	<!--
 		Define a cxf endpoint based on client stub generated from a wsdl. It
 		is important to provide serviceName and endpointName so the wsdl is

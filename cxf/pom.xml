@@ -30,7 +30,7 @@
 
 	<properties>
 		<activemq.version>5.6.0</activemq.version>
-		<cxf.version>2.6.0</cxf.version>
+		<cxf.version>2.6.1</cxf.version>
 		<cxf.xjc-utils.version>2.6.0</cxf.xjc-utils.version>
 		<spring.version>3.0.7.RELEASE</spring.version>
 		<slf4j.version>1.6.2</slf4j.version>
@@ -40,6 +40,7 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-jms</artifactId>

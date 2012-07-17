@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
@@ -37,33 +36,31 @@ import com.example.customerservice.NoSuchCustomer;
 import com.example.customerservice.NoSuchCustomerException;
 
 public class CustomerServiceImpl implements CustomerService {
-	private static int SIZE_SMALL = 4; // 500 bytes
-	private static int SIZE_MEDIUM = 504; // 10 KB
-	private static int SIZE_LARGE = 52609; // 1 MB
-	private static int SIZE_XLARGE = 526090; // 10 MB
+	private static final int BASE_SIZE = 428; // Size of the soap reply without filler in the address attrib
+    private static int SIZE_SMALL = 500; // 500 bytes
+	private static int SIZE_MEDIUM = 10000; // 10 KB
+	private static int SIZE_LARGE = 1000 * 1000; // 1 MB
+	private static int SIZE_XLARGE = 10 * SIZE_LARGE; // 10 MB
 	
 	private String address;
-	private AtomicInteger oneWayCount = new AtomicInteger();
-	private AtomicInteger requestReplyCount = new AtomicInteger();
-	private long oldTimeOneWay = 0L;
+    private final SpeedTracker tracker;
+    private final SpeedTracker trackerOneWay;
 
-	public CustomerServiceImpl() {
-		StringBuilder largeString = new StringBuilder();
-		for (int c=0; c<SIZE_LARGE; c++) {
-			largeString.append("A long address line");
+	public CustomerServiceImpl(int size) {
+		this.trackerOneWay = new SpeedTracker();
+		this.tracker = new SpeedTracker();
+        int fillSize = (size - BASE_SIZE > 0)? size - 428 : 0;
+        StringBuilder largeString = new StringBuilder();
+		for (int c=0; c < fillSize / 10; c++) {
+			largeString.append("10 chars..");
 		}
 		address = largeString.toString();
-		oldTimeOneWay = System.currentTimeMillis();
 	}
 
     public List<Customer> getCustomersByName(String name) throws NoSuchCustomerException {
-    	int curCount = requestReplyCount.addAndGet(1);
-        if (curCount % 100 == 0) {
-            long messagespersec = 100 * 1000 / (System.currentTimeMillis() - oldTimeOneWay);
-            oldTimeOneWay = System.currentTimeMillis();
-            System.out.println("updateCustomer " + curCount + " messages per sec: " + messagespersec);
-        }
-    	//System.out.println("Service called");
+        tracker.count();
+
+        //System.out.println("Service called");
         if ("None".equals(name)) {
             NoSuchCustomer noSuchCustomer = new NoSuchCustomer();
             noSuchCustomer.setCustomerName(name);
@@ -89,12 +86,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public void updateCustomer(Customer customer) {
-    	int curCount = oneWayCount.addAndGet(1);
-		if (curCount % 100 == 0) {
-			long messagespersec = 100 * 1000 / (System.currentTimeMillis() - oldTimeOneWay);
-			oldTimeOneWay = System.currentTimeMillis();
-			System.out.println("updateCustomer " + curCount + " messages per sec: " + messagespersec);
-		}
+        trackerOneWay.count();
     }
 
 	@Override

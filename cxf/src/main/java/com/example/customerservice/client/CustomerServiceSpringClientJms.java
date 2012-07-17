@@ -28,12 +28,13 @@ public final class CustomerServiceSpringClientJms {
     }
 
     public static void main(String args[]) throws Exception {
+        
         // Initialize the spring context and fetch our test client
         ClassPathXmlApplicationContext context 
             = new ClassPathXmlApplicationContext(new String[] {"classpath:client-applicationContextJms.xml"});
         CustomerServiceTester client = (CustomerServiceTester)context.getBean("tester");
         
-        client.testCustomerService();
+        client.testCustomerService(10000, 10, CallType.requestReply);
         context.close();
         System.exit(0);
     }

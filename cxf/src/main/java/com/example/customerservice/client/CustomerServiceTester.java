@@ -19,78 +19,59 @@
 
 package com.example.customerservice.client;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.xml.ws.Response;
-
-import org.apache.commons.lang.time.StopWatch;
 
 import com.example.customerservice.Customer;
 import com.example.customerservice.CustomerService;
-import com.example.customerservice.GetCustomersByNameResponse;
+import com.example.customerservice.NoSuchCustomerException;
+import com.example.customerservice.server.SpeedTracker;
 
 public final class CustomerServiceTester {
 
-	CustomerService customerService;
+    CustomerService customerService;
+    private SpeedTracker tracker;
 
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
-	}
+    public void setCustomerService(CustomerService customerService) {
+        this.tracker = new SpeedTracker();
+        this.customerService = customerService;
+    }
 
-	public void testCustomerService() throws Exception {
-		int numMessages = 40000;
-		int numThreads = 20;
+    public void testCustomerService(int numMessages, int numThreads, final CallType calltype) throws Exception {
+        this.tracker.reset();
+        doRun(numMessages, numThreads, calltype);
+        this.tracker.reset();
+        doRun(numMessages, numThreads, calltype);
+        this.tracker.showStats();
+    }
 
-		doRun(numMessages, numThreads);
-		StopWatch watch = new StopWatch();
-		watch.start();
-		doRun(numMessages, numThreads);
-		watch.stop();
-		System.out.println(numMessages * 1000 / watch.getTime());
-		System.out.println(watch.toString());
-	}
+    private void doRun(int numMessages, int numThreads, final CallType calltype)
+            throws InterruptedException, Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 
-	private void doRun(int numMessages, int numThreads) throws InterruptedException, Exception {
-		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-		final AtomicInteger count = new AtomicInteger();
+        final Customer customer = new Customer();
+        for (int c = 0; c < numMessages; c++) {
+            pool.execute(new Runnable() {
 
-		final Customer customer = new Customer();
-		for (int c = 0; c < numMessages; c++) {
-			pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    tracker.count();
+                    if (calltype == CallType.oneway) {
+                        customerService.updateCustomer(customer);
+                    } else {
+                        try {
+                            customerService.getCustomersByName("test2");
+                        } catch (NoSuchCustomerException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
 
-				@Override
-				public void run() {
-					int curCount = count.addAndGet(1);
-					if (curCount % 100 == 0) {
-						System.out.println(curCount);
-					}
-					
-					// At this point you can decide to test the one way or the request / response method
-					
-					customerService.updateCustomer(customer);
-					//callGetCustomerByName();
-
-				}
-
-				private void callGetCustomerByName() {
-					Response<GetCustomersByNameResponse> resp = customerService.getCustomersByNameAsync("test");
-					try {
-						GetCustomersByNameResponse customers = resp.get();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					} catch (ExecutionException e) {
-					    throw new RuntimeException(e);
-					}
-				}
-
-			});
-		}
-		pool.shutdown();
-		pool.awaitTermination(10000, TimeUnit.SECONDS);
-	}
+            });
+        }
+        pool.shutdown();
+        pool.awaitTermination(10000, TimeUnit.SECONDS);
+    }
 
 }

@@ -42,11 +42,16 @@
       <sessionSupport>true</sessionSupport>
     </engine>
   </engine-factory>
+  
+  	 <bean id="serviceImpl" class="com.example.customerservice.server.CustomerServiceImpl">
+	 	<constructor-arg name="size" value="0"/>
+	 </bean>
+  
 
 	<!-- HTTP Endpoint -->
 	<jaxws:endpoint
 		id="CustomerServiceHTTP" address="http://localhost:9090/CustomerServicePort"
-		implementor="com.example.customerservice.server.CustomerServiceImpl">
+		implementor="#serviceImpl">
 <!-- 		<jaxws:features> -->
 <!-- 			<bean class="org.apache.cxf.feature.LoggingFeature" /> -->
 <!-- 		</jaxws:features> -->
