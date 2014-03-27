@@ -36,31 +36,31 @@ import com.example.customerservice.NoSuchCustomer;
 import com.example.customerservice.NoSuchCustomerException;
 
 public class CustomerServiceImpl implements CustomerService {
-	private static final int BASE_SIZE = 428; // Size of the soap reply without filler in the address attrib
+    private static final int BASE_SIZE = 428; // Size of the soap reply without filler in the address attrib
     private static int SIZE_SMALL = 500; // 500 bytes
-	private static int SIZE_MEDIUM = 10000; // 10 KB
-	private static int SIZE_LARGE = 1000 * 1000; // 1 MB
-	private static int SIZE_XLARGE = 10 * SIZE_LARGE; // 10 MB
-	
-	private String address;
+    private static int SIZE_MEDIUM = 10000; // 10 KB
+    private static int SIZE_LARGE = 1000 * 1000; // 1 MB
+    private static int SIZE_XLARGE = 10 * SIZE_LARGE; // 10 MB
+
+    private String address;
     private final SpeedTracker tracker;
     private final SpeedTracker trackerOneWay;
 
-	public CustomerServiceImpl(int size) {
-		this.trackerOneWay = new SpeedTracker();
-		this.tracker = new SpeedTracker();
-        int fillSize = (size - BASE_SIZE > 0)? size - 428 : 0;
+    public CustomerServiceImpl(int size) {
+        this.trackerOneWay = new SpeedTracker();
+        this.tracker = new SpeedTracker();
+        int fillSize = (size - BASE_SIZE > 0) ? size - 428 : 0;
         StringBuilder largeString = new StringBuilder();
-		for (int c=0; c < fillSize / 10; c++) {
-			largeString.append("10 chars..");
-		}
-		address = largeString.toString();
-	}
+        for (int c = 0; c < fillSize / 10; c++) {
+            largeString.append("10 chars..");
+        }
+        address = largeString.toString();
+    }
 
     public List<Customer> getCustomersByName(String name) throws NoSuchCustomerException {
-        tracker.count();
+        //tracker.count();
 
-        //System.out.println("Service called");
+        // System.out.println("Service called");
         if ("None".equals(name)) {
             NoSuchCustomer noSuchCustomer = new NoSuchCustomer();
             noSuchCustomer.setCustomerName(name);
@@ -86,21 +86,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public void updateCustomer(Customer customer) {
-        trackerOneWay.count();
+        //trackerOneWay.count();
     }
 
-	@Override
-	public Response<GetCustomersByNameResponse> getCustomersByNameAsync(
-			String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Response<GetCustomersByNameResponse> getCustomersByNameAsync(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Future<?> getCustomersByNameAsync(String name,
-			AsyncHandler<GetCustomersByNameResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Future<?> getCustomersByNameAsync(String name,
+                                             AsyncHandler<GetCustomersByNameResponse> asyncHandler) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

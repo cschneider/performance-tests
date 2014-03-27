@@ -68,8 +68,6 @@ public class PureJmsClient {
         Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Queue dest = session.createQueue("customerservice");
         TextMessage message = session.createTextMessage(request);
-        //BytesMessage message = session.createBytesMessage();
-        //message.writeBytes(request.getBytes());
         Queue replyDest = session.createQueue("customerservicereply");
         message.setJMSReplyTo(replyDest);
         MessageProducer prod = session.createProducer(dest);

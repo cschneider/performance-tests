@@ -49,26 +49,27 @@ public final class CustomerServiceTester {
     private void doRun(int numMessages, int numThreads, final CallType calltype)
             throws InterruptedException, Exception {
         ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-
         final Customer customer = new Customer();
-        for (int c = 0; c < numMessages; c++) {
-            pool.execute(new Runnable() {
+        Runnable callRunnable = new Runnable() {
 
-                @Override
-                public void run() {
-                    tracker.count();
-                    if (calltype == CallType.oneway) {
-                        customerService.updateCustomer(customer);
-                    } else {
-                        try {
-                            customerService.getCustomersByName("test2");
-                        } catch (NoSuchCustomerException e) {
-                            throw new RuntimeException(e);
-                        }
+            @Override
+            public void run() {
+                tracker.count();
+                if (calltype == CallType.oneway) {
+                    customerService.updateCustomer(customer);
+                } else {
+                    try {
+                        customerService.getCustomersByName("test2");
+                    } catch (NoSuchCustomerException e) {
+                        throw new RuntimeException(e);
                     }
                 }
+            }
 
-            });
+        };
+        
+        for (int c = 0; c < numMessages; c++) {
+            pool.execute(callRunnable);
         }
         pool.shutdown();
         pool.awaitTermination(10000, TimeUnit.SECONDS);

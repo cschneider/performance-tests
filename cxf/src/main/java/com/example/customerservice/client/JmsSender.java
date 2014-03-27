@@ -14,8 +14,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.commons.lang.time.StopWatch;
-import org.springframework.jms.connection.CachingConnectionFactory;
 
 public class JmsSender {
 	protected static String mbSt;
@@ -31,8 +31,7 @@ public class JmsSender {
 		ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(
 				"tcp://localhost:61616");
 		cf.setUseAsyncSend(true);
-		CachingConnectionFactory ccf = new CachingConnectionFactory(cf);
-		ccf.setSessionCacheSize(numThreads);
+		PooledConnectionFactory ccf = new PooledConnectionFactory(cf);
 		Connection con = cf.createConnection();
 
 		doRun(con, numMessages, numThreads);
@@ -43,7 +42,7 @@ public class JmsSender {
 		con.close();
 		System.out.println(numMessages * 1000 / watch.getTime());
 		System.out.println(watch.toString());
-		ccf.destroy();
+
 	}
 
 	private static String createMbStrig() {

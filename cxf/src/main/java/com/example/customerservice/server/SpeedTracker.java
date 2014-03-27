@@ -1,8 +1,11 @@
 package com.example.customerservice.server;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SpeedTracker {
+    private long blockSize = 500;
     private long startTime;
     private long oldTime;
     private AtomicInteger count = new AtomicInteger();
@@ -19,16 +22,22 @@ public class SpeedTracker {
     
     public void count() {
         int curCount = count.addAndGet(1);
-        if (curCount % 100 == 0) {
-            long messagespersec = 100 * 1000 / (System.currentTimeMillis() - oldTime);
+        if (curCount % blockSize == 0) {
+            long timediff = System.currentTimeMillis() - oldTime;
+            long messagespersec = blockSize * 1000L / timediff;
             oldTime = System.currentTimeMillis();
-            System.out.println(curCount + " messages total, "+ messagespersec + " msg/s: ");
+            Date date = new Date();
+            String dateSt = DateFormat.getTimeInstance().format(date);
+            if (messagespersec < 1000) {
+                System.out.println(dateSt + " - " + curCount + " messages total, "+ messagespersec + " msg/s: " + timediff + " time for " +blockSize+" msgs");
+            }
         }
     }
     
     public void showStats() {
         int curCount = count.get();
-        long messagespersec = curCount * 1000 / (System.currentTimeMillis() - startTime);
+        long timeDiff = System.currentTimeMillis() - startTime;
+        long messagespersec = new Long(curCount) * 1000 / timeDiff;
         System.out.println("Overall measurement: " + curCount + " messages total, "+ messagespersec + " msg/s: ");
     }
 }

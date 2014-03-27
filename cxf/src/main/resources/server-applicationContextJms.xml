@@ -35,14 +35,6 @@
 		<property name="maxConnections" value="10"/>
 	</bean>
 	
-	<!-- 
-	<bean id="jmsConnectionFactory"
-		class="org.springframework.jms.connection.CachingConnectionFactory">
-		<property name="targetConnectionFactory" ref="jmsConnectionFactory2"/>
-		<property name="sessionCacheSize" value="5" />
-	</bean>
-	 -->
-	 
 	 <bean id="serviceImpl" class="com.example.customerservice.server.CustomerServiceImpl">
 	 	<constructor-arg name="size" value="0"/>
 	 </bean>
