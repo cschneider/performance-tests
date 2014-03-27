@@ -28,9 +28,8 @@ public class SpeedTracker {
             oldTime = System.currentTimeMillis();
             Date date = new Date();
             String dateSt = DateFormat.getTimeInstance().format(date);
-            if (messagespersec < 1000) {
-                System.out.println(dateSt + " - " + curCount + " messages total, "+ messagespersec + " msg/s: " + timediff + " time for " +blockSize+" msgs");
-            }
+            System.out.println(dateSt + " - " + curCount + " messages total, "+ messagespersec + " msg/s: " + timediff + " time for " +blockSize+" msgs");
+
         }
     }
     

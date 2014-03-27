@@ -19,12 +19,16 @@
 
 package com.example.customerservice.client;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.example.customerservice.Customer;
 import com.example.customerservice.CustomerService;
+import com.example.customerservice.GetCustomersByNameResponse;
 import com.example.customerservice.NoSuchCustomerException;
 import com.example.customerservice.server.SpeedTracker;
 
@@ -57,11 +61,21 @@ public final class CustomerServiceTester {
                 tracker.count();
                 if (calltype == CallType.oneway) {
                     customerService.updateCustomer(customer);
-                } else {
+                } if (calltype == CallType.requestReply) {
                     try {
-                        customerService.getCustomersByName("test2");
+                        List<Customer> customers = customerService.getCustomersByName("test2");
                     } catch (NoSuchCustomerException e) {
-                        throw new RuntimeException(e);
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }  else {
+                    try {
+                        Future<GetCustomersByNameResponse> resp = customerService.getCustomersByNameAsync("test2");
+                        GetCustomersByNameResponse res1 = resp.get();
+                        //res1.getReturn();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
                 }
             }

@@ -20,17 +20,12 @@ package com.example.customerservice.server;
 
 import java.util.Arrays;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.pool.PooledConnectionFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.jms.JMSConfigFeature;
-import org.apache.cxf.transport.jms.JMSConfiguration;
 
 import com.example.customerservice.CustomerService;
+import com.example.customerservice.common.ConfigFactory;
 
 public class CustomerServiceServerJms {
     
@@ -38,20 +33,7 @@ public class CustomerServiceServerJms {
     }
 
     public static void main(String args[]) throws Exception {
-        ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
-        PooledConnectionFactory pcf = new PooledConnectionFactory();
-        pcf.setConnectionFactory(cf);
-
-        JMSConfiguration jmsConfig = new JMSConfiguration();
-        jmsConfig.setConnectionFactory(pcf);
-        jmsConfig.setTargetDestination("customerservice");
-        jmsConfig.setReplyDestination("customerservicereply");
-        jmsConfig.setExplicitQosEnabled(true);
-        jmsConfig.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-
-        JMSConfigFeature jmsConfigFeature = new JMSConfigFeature();
-        jmsConfigFeature.setJmsConfig(jmsConfig);
-
+        JMSConfigFeature jmsConfigFeature = ConfigFactory.create();
         JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
         factory.setAddress("jms://");
         factory.setServiceClass(CustomerService.class);

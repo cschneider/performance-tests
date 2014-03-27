@@ -22,17 +22,11 @@ package com.example.customerservice.client;
 
 import java.util.Arrays;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-import javax.jms.Message;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.pool.PooledConnectionFactory;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.jms.JMSConfigFeature;
-import org.apache.cxf.transport.jms.JMSConfiguration;
 
 import com.example.customerservice.CustomerService;
+import com.example.customerservice.common.ConfigFactory;
 
 public final class CustomerServiceClientJms {
 
@@ -40,19 +34,7 @@ public final class CustomerServiceClientJms {
     }
 
     public static void main(String args[]) throws Exception {
-        ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
-        PooledConnectionFactory pcf = new PooledConnectionFactory();
-        pcf.setConnectionFactory(cf);
-
-        JMSConfiguration jmsConfig = new JMSConfiguration();
-        jmsConfig.setConnectionFactory(pcf);
-        jmsConfig.setTargetDestination("customerservice");
-        jmsConfig.setReplyDestination("customerservicereply");
-        jmsConfig.setExplicitQosEnabled(true);
-        jmsConfig.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        JMSConfigFeature jmsConfigFeature = new JMSConfigFeature();        
-        jmsConfigFeature.setJmsConfig(jmsConfig);
-
+        JMSConfigFeature jmsConfigFeature = ConfigFactory.create();
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setAddress("jms://");
         factory.setServiceClass(CustomerService.class);
@@ -62,7 +44,8 @@ public final class CustomerServiceClientJms {
         CustomerServiceTester tester = new CustomerServiceTester();
         tester.setCustomerService(customerService);
         
-        tester.testCustomerService(160000, 10, CallType.oneway);
+        tester.testCustomerService(80000, 40, CallType.requestReply);
         System.exit(0);
     }
+
 }
