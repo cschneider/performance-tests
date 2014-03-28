@@ -28,9 +28,6 @@ import com.example.customerservice.CustomerService;
 import com.example.customerservice.common.ConfigFactory;
 
 public class CustomerServiceServerJms {
-    
-    protected CustomerServiceServerJms() {
-    }
 
     public static void main(String args[]) throws Exception {
         JMSConfigFeature jmsConfigFeature = ConfigFactory.create();

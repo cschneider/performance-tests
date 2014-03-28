@@ -18,19 +18,21 @@
  */
 package com.example.customerservice.server;
 
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 
+import com.example.customerservice.CustomerService;
 
-public class CustomerServiceSpringServer {
+public class CustomerServiceServer {
 
-	protected CustomerServiceSpringServer() {
-	}
+    public static void main(String args[]) throws Exception {
+        JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
+        factory.setAddress("http://localhost:9090/CustomerServicePort");
+        factory.setServiceClass(CustomerService.class);
+        factory.setServiceBean(new CustomerServiceImpl(0));
+        Server server = factory.create();
 
-	public static void main(String args[]) throws Exception {
-		AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-				"server-applicationContext.xml");
-		System.in.read();
-		context.close();
-	}
+        System.in.read();
+        server.destroy();
+    }
 }

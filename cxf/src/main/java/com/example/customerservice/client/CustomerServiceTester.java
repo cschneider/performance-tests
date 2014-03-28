@@ -20,7 +20,6 @@
 package com.example.customerservice.client;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -61,7 +60,7 @@ public final class CustomerServiceTester {
                 tracker.count();
                 if (calltype == CallType.oneway) {
                     customerService.updateCustomer(customer);
-                } if (calltype == CallType.requestReply) {
+                } else if (calltype == CallType.requestReply) {
                     try {
                         List<Customer> customers = customerService.getCustomersByName("test2");
                     } catch (NoSuchCustomerException e) {

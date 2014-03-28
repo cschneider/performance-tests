@@ -20,6 +20,7 @@ public class ConfigFactory {
         jmsConfig.setConnectionFactory(pcf);
         jmsConfig.setTargetDestination("customerservice");
         jmsConfig.setReplyDestination("customerservicereply");
+        jmsConfig.setUseConduitIdSelector(true);
         jmsConfig.setExplicitQosEnabled(true);
         jmsConfig.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
         jmsConfig.setTimeToLive(10000);

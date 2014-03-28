@@ -30,9 +30,6 @@ import com.example.customerservice.common.ConfigFactory;
 
 public final class CustomerServiceClientJms {
 
-    private CustomerServiceClientJms() {
-    }
-
     public static void main(String args[]) throws Exception {
         JMSConfigFeature jmsConfigFeature = ConfigFactory.create();
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
@@ -44,7 +41,7 @@ public final class CustomerServiceClientJms {
         CustomerServiceTester tester = new CustomerServiceTester();
         tester.setCustomerService(customerService);
         
-        tester.testCustomerService(80000, 40, CallType.requestReply);
+        tester.testCustomerService(80000, 20, CallType.oneway);
         System.exit(0);
     }
 

@@ -20,21 +20,20 @@ package com.example.customerservice.client;
 
 
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
-public final class CustomerServiceSpringClient {
+import com.example.customerservice.CustomerService;
 
-    private CustomerServiceSpringClient() {
-    }
+public final class CustomerServiceClient {
 
     public static void main(String args[]) throws Exception {
-        // Initialize the spring context and fetch our test client
-        ClassPathXmlApplicationContext context 
-            = new ClassPathXmlApplicationContext(new String[] {"classpath:client-applicationContext.xml"});
-        CustomerServiceTester client = (CustomerServiceTester)context.getBean("tester");
-        
-        client.testCustomerService(40000, 20, CallType.oneway);
-        context.close();
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        factory.setAddress("http://localhost:9090/CustomerServicePort");
+        factory.setServiceClass(CustomerService.class);
+        CustomerService customerService = factory.create(CustomerService.class);
+        CustomerServiceTester client = new CustomerServiceTester();
+        client.setCustomerService(customerService);
+        client.testCustomerService(40000, 40, CallType.requestReplyAsync);
         System.exit(0);
     }
 }
