@@ -41,8 +41,22 @@ public final class CustomerServiceClientJms {
         CustomerServiceTester tester = new CustomerServiceTester();
         tester.setCustomerService(customerService);
         
-        tester.testCustomerService(80000, 20, CallType.oneway);
+        int messages = getInt("messages", 40000);
+        int threads = getInt("threads", 20);
+        CallType callType = getCallType("callType", CallType.oneway);
+        
+        tester.testCustomerService(messages, threads, callType);
         System.exit(0);
+    }
+
+    private static int getInt(String key, int defaultValue) {
+        String value = System.getProperty(key);
+        return (value == null) ? defaultValue : new Integer(value);
+    }
+    
+    private static CallType getCallType(String key, CallType defaultValue) {
+        String value = System.getProperty(key);
+        return (value == null) ? defaultValue : CallType.valueOf(value);
     }
 
 }

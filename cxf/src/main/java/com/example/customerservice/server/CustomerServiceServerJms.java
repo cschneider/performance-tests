@@ -18,14 +18,14 @@
  */
 package com.example.customerservice.server;
 
+import com.example.customerservice.CustomerService;
+import com.example.customerservice.common.ConfigFactory;
+
 import java.util.Arrays;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.jms.JMSConfigFeature;
-
-import com.example.customerservice.CustomerService;
-import com.example.customerservice.common.ConfigFactory;
 
 public class CustomerServiceServerJms {
 
@@ -34,7 +34,7 @@ public class CustomerServiceServerJms {
         JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
         factory.setAddress("jms://");
         factory.setServiceClass(CustomerService.class);
-        factory.setServiceBean(new CustomerServiceImpl(0));
+        factory.setServiceBean(new CustomerServiceImpl(CustomerServiceImpl.SIZE_SMALL));
         factory.setFeatures(Arrays.asList(jmsConfigFeature));
         Server server = factory.create();
 

@@ -34,22 +34,26 @@ import com.example.customerservice.server.SpeedTracker;
 public final class CustomerServiceTester {
 
     CustomerService customerService;
-    private SpeedTracker tracker;
 
     public void setCustomerService(CustomerService customerService) {
-        this.tracker = new SpeedTracker();
         this.customerService = customerService;
     }
 
     public void testCustomerService(int numMessages, int numThreads, final CallType calltype) throws Exception {
-        this.tracker.reset();
-        doRun(numMessages, numThreads, calltype);
-        this.tracker.reset();
-        doRun(numMessages, numThreads, calltype);
-        this.tracker.showStats();
+        printInfo(numMessages, numThreads, calltype);
+        SpeedTracker tracker = new SpeedTracker();
+        doRun(tracker, numMessages, numThreads, calltype);
+        tracker.reset();
+        doRun(tracker, numMessages, numThreads, calltype);
+        printInfo(numMessages, numThreads, calltype);
+        tracker.showStats();
     }
 
-    private void doRun(int numMessages, int numThreads, final CallType calltype)
+    private void printInfo(int nummessages, int numThreads, final CallType calltype) {
+        System.out.println("Running performance test sending "+ nummessages + " messages using " + numThreads + " threads, call type " + calltype);
+    }
+
+    private void doRun(final SpeedTracker tracker, int numMessages, int numThreads, final CallType calltype)
             throws InterruptedException, Exception {
         ExecutorService pool = Executors.newFixedThreadPool(numThreads);
         final Customer customer = new Customer();
@@ -64,8 +68,6 @@ public final class CustomerServiceTester {
                     try {
                         List<Customer> customers = customerService.getCustomersByName("test2");
                     } catch (NoSuchCustomerException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
                 }  else {
                     try {
@@ -73,8 +75,6 @@ public final class CustomerServiceTester {
                         GetCustomersByNameResponse res1 = resp.get();
                         //res1.getReturn();
                     } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
                 }
             }

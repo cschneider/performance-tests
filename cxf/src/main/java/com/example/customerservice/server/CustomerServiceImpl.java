@@ -37,10 +37,10 @@ import com.example.customerservice.NoSuchCustomerException;
 
 public class CustomerServiceImpl implements CustomerService {
     private static final int BASE_SIZE = 428; // Size of the soap reply without filler in the address attrib
-    private static int SIZE_SMALL = 500; // 500 bytes
-    private static int SIZE_MEDIUM = 10000; // 10 KB
-    private static int SIZE_LARGE = 1000 * 1000; // 1 MB
-    private static int SIZE_XLARGE = 10 * SIZE_LARGE; // 10 MB
+    public static int SIZE_SMALL = 500; // 500 bytes
+    public static int SIZE_MEDIUM = 10000; // 10 KB
+    public static int SIZE_LARGE = 1000 * 1000; // 1 MB
+    public static int SIZE_XLARGE = 10 * SIZE_LARGE; // 10 MB
 
     private String address;
     private final SpeedTracker tracker;
@@ -60,7 +60,7 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getCustomersByName(String name) throws NoSuchCustomerException {
         //tracker.count();
 
-        // System.out.println("Service called");
+        //System.out.println("Service called");
         if ("None".equals(name)) {
             NoSuchCustomer noSuchCustomer = new NoSuchCustomer();
             noSuchCustomer.setCustomerName(name);
@@ -81,7 +81,6 @@ public class CustomerServiceImpl implements CustomerService {
             cust.setType(CustomerType.BUSINESS);
             customers.add(cust);
         }
-
         return customers;
     }
 
@@ -91,15 +90,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Response<GetCustomersByNameResponse> getCustomersByNameAsync(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new IllegalStateException("Should not be called on server");
     }
 
     @Override
     public Future<?> getCustomersByNameAsync(String name,
                                              AsyncHandler<GetCustomersByNameResponse> asyncHandler) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new IllegalStateException("Should not be called on server");
     }
 
 }
